@@ -1,0 +1,45 @@
+def print_env(env, pos):
+    for i, room in enumerate(env):
+        if i == pos:
+            print(f"[R:{env[room]}]", end=" ")
+        else:
+            print(f"[{room}:{env[room]}]", end=" ")
+    print("\n")
+
+def vacuum_cleaner():
+    env = {"A": "dirty", "B": "dirty"}
+    pos = 0
+    rooms = list(env.keys())
+
+    print("Vacuum Cleaner World")
+    print("Commands: LEFT, RIGHT, CLEAN, EXIT\n")
+
+    while True:
+        print_env(env, pos)
+        cmd = input("Enter command: ").strip().upper()
+
+        if cmd == "EXIT":
+            print("Exiting...")
+            break
+        elif cmd == "LEFT":
+            if pos > 0:
+                pos -= 1
+            else:
+                print("Already at the leftmost room!")
+        elif cmd == "RIGHT":
+            if pos < len(rooms) - 1:
+                pos += 1
+            else:
+                print("Already at the rightmost room!")
+        elif cmd == "CLEAN":
+            env[rooms[pos]] = "clean"
+            print(f"Cleaned {rooms[pos]}")
+        else:
+            print("Invalid command!")
+
+        if all(state == "clean" for state in env.values()):
+            print_env(env, pos)
+            print("🏆 All rooms are clean!")
+            break
+
+vacuum_cleaner()
