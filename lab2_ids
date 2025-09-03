@@ -1,0 +1,62 @@
+from collections import deque
+
+
+moves = {
+    'U': -3,  
+    'D': 3,   
+    'L': -1,  
+    'R': 1   
+}
+
+def get_neighbors(state):
+    neighbors = []
+    zero_idx = state.index("0")  
+
+    for move, pos_change in moves.items():
+        new_idx = zero_idx + pos_change
+
+        
+        if move == 'L' and zero_idx % 3 == 0: 
+            continue
+        if move == 'R' and zero_idx % 3 == 2:
+            continue
+        if 0 <= new_idx < 9:
+            new_state = list(state)
+           
+            new_state[zero_idx], new_state[new_idx] = new_state[new_idx], new_state[zero_idx]
+            neighbors.append(("".join(new_state), move))
+    return neighbors
+
+
+def depth_limited_search(state, goal, limit, path, visited):
+    if state == goal:
+        return path
+
+    if limit <= 0:
+        return None
+
+    visited.add(state)
+    for neighbor, move in get_neighbors(state):
+        if neighbor not in visited:
+            new_path = depth_limited_search(neighbor, goal, limit - 1, path + [move], visited.copy())
+            if new_path:
+                return new_path
+    return None
+
+
+def iterative_deepening_search(start, goal, max_depth=30):
+    for depth in range(max_depth + 1):
+        print(f"\n🔎 Searching with depth limit = {depth}")
+        path = depth_limited_search(start, goal, depth, [], set())
+        if path:
+            print(f"✅ Goal found at depth {depth}! Moves: {' -> '.join(path)}")
+            return path
+    print(f"❌ Goal not found within depth {max_depth}")
+    return None
+
+
+
+start_state = "724506831"   
+goal_state  = "012345678"   
+
+iterative_deepening_search(start_state, goal_state, max_depth=20)
