@@ -1,0 +1,35 @@
+# Graph represented as adjacency list
+graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [],
+    'E': ['F'],
+    'F': []
+}
+
+def dfs_find_path(start, goal):
+    visited = set()
+    # Stack stores (node, path)
+    stack = [(start, [start])]
+
+    while stack:
+        node, path = stack.pop()
+        if node not in visited:
+            print(f"Visiting: {node}")
+            visited.add(node)
+
+            if node == goal:
+                print(f"✅ Goal '{goal}' found! Path: {' -> '.join(path)}")
+                return path
+
+            # Add neighbors with updated path
+            for neighbor in reversed(graph[node]):  # reverse for left-to-right order
+                stack.append((neighbor, path + [neighbor]))
+
+    print(f"❌ Goal '{goal}' not found.")
+    return None
+
+
+# Example: search from 'A' to 'F'
+dfs_find_path('A', 'F')
