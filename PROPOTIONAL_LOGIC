@@ -1,0 +1,67 @@
+from itertools import product
+
+# Extract variables from a formula
+def extract_variables(formula):
+    return sorted(set(filter(str.isalpha, formula)))
+
+# Evaluate a formula with a given truth assignment
+def eval_formula(formula, assignment):
+    f = formula
+    for var, val in assignment.items():
+        f = f.replace(var, str(val))
+    f = f.replace('~', 'not ')
+    f = f.replace('&', ' and ')
+    f = f.replace('|', ' or ')
+    f = f.replace('->', '<=')   # p -> q is equivalent to (not p or q)
+    f = f.replace('<->', '==')  # p <-> q is equivalent to (p == q)
+    return eval(f)
+
+# Generate all truth assignments for variables
+def generate_assignments(variables):
+    return [dict(zip(variables, vals)) for vals in product([True, False], repeat=len(variables))]
+
+# Interactive entailment checker
+def interactive_entailment():
+    print("=== Propositional Logic Entailment Checker ===\n")
+    
+    # Input KB
+    KB = []
+    n = int(input("Enter number of formulas in KB: "))
+    for i in range(n):
+        f = input(f"Formula {i+1} (use ~ for NOT, & for AND, | for OR, -> for IMPLIES, <-> for IFF): ")
+        KB.append(f)
+    
+    # Input alpha (query)
+    alpha = input("\nEnter the query formula (alpha): ")
+    
+    # Extract variables
+    all_formulas = KB + [alpha]
+    variables = sorted(set(var for formula in all_formulas for var in extract_variables(formula)))
+    
+    # Generate truth assignments
+    assignments = generate_assignments(variables)
+    
+    entails = True
+    print("\nTruth Table:\n" + "-"*50)
+    header = " | ".join(variables + KB + [alpha])
+    print(header)
+    print("-"*50)
+    
+    for assignment in assignments:
+        kb_values = [eval_formula(f, assignment) for f in KB]
+        alpha_value = eval_formula(alpha, assignment)
+        row = " | ".join(str(assignment[v]) for v in variables) + " | " + " | ".join(str(v) for v in kb_values) + " | " + str(alpha_value)
+        print(row)
+        
+        if all(kb_values) and not alpha_value:
+            entails = False
+            print(f"\n❌ Counterexample found: {assignment}")
+    
+    print("-"*50)
+    if entails:
+        print(f"\n✅ KB entails {alpha}")
+    else:
+        print(f"\n❌ KB does NOT entail {alpha}")
+
+# Run the interactive checker
+interactive_entailment()
