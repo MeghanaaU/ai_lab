@@ -1,0 +1,74 @@
+import random
+
+# Print board
+def print_board(state):
+    n = len(state)
+    for i in range(n):
+        row = ""
+        for j in range(n):
+            row += "Q " if state[j] == i else ". "
+        print(row)
+    print()
+
+# Count number of attacking pairs (heuristic)
+def calculate_attacks(state):
+    n = len(state)
+    attacks = 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            if state[i] == state[j] or abs(state[i] - state[j]) == abs(i - j):
+                attacks += 1
+    return attacks
+
+# Find best neighboring state
+def get_best_neighbor(state):
+    n = len(state)
+    best_state = state[:]
+    best_h = calculate_attacks(state)
+    
+    for col in range(n):
+        original_row = state[col]
+        for row in range(n):
+            if row != original_row:
+                new_state = state[:]
+                new_state[col] = row
+                h = calculate_attacks(new_state)
+                if h < best_h:
+                    best_h = h
+                    best_state = new_state[:]
+    return best_state, best_h
+
+# Hill Climbing algorithm
+def hill_climbing(n=4):
+    current_state = [random.randint(0, n - 1) for _ in range(n)]
+    current_h = calculate_attacks(current_state)
+
+    print("Initial board:")
+    print_board(current_state)
+    print("Initial heuristic (attacking pairs):", current_h, "\n")
+
+    step = 0
+    while True:
+        neighbor, neighbor_h = get_best_neighbor(current_state)
+        print(f"Step {step}: h = {current_h}")
+        print_board(current_state)
+
+        if neighbor_h >= current_h:
+            # Stop if no improvement
+            break
+
+        current_state = neighbor
+        current_h = neighbor_h
+        step += 1
+
+    print("Final board:")
+    print_board(current_state)
+    print("Final heuristic:", current_h)
+
+    if current_h == 0:
+        print("✅ Solution found!")
+    else:
+        print("⚠️ Local minimum reached (no solution from this start).")
+
+# Run the algorithm for 4-Queens
+hill_climbing(4)
